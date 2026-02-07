@@ -19,5 +19,4 @@ public class PostCreatedEvent implements Serializable {
     LocalDateTime createdAt;
 
     Object payload;
-    
 }
