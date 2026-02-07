@@ -34,10 +34,13 @@ public class PostItemConsumer {
             // 2. Бизнес-логика обработки
             // processEvent(event);
 
+            channel.basicAck(deliveryTag, false);
             log.info("Событие {} обработано успешно", event.getId());
 
         } catch (Exception e) {
             log.error("Ошибка обработки события {}: {}", event.getId(), e.getMessage());
+
+            channel.basicNack(deliveryTag, false, true);
         }
     }
 }
