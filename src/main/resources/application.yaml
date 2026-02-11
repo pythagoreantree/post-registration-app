@@ -26,8 +26,10 @@ spring:
     listener:
       simple:
         acknowledge-mode: manual
-        default-requeue-rejected: false
-        prefetch: 1
+        prefetch: 10
+        concurrency: 5
+        retry:
+          enabled: false
 
 server:
   port: 8081

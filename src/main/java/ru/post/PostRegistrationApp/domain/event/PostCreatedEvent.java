@@ -1,4 +1,4 @@
-package ru.post.PostRegistrationApp.domain.dto;
+package ru.post.PostRegistrationApp.domain.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostCreatedEvent implements Serializable {
+public class PostCreatedEvent<T> implements Serializable {
 
     String id;
 
@@ -18,5 +18,5 @@ public class PostCreatedEvent implements Serializable {
 
     LocalDateTime createdAt;
 
-    Object payload;
+    T payload;
 }
