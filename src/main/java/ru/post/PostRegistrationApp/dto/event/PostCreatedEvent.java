@@ -1,4 +1,4 @@
-package ru.post.PostRegistrationApp.domain.event;
+package ru.post.PostRegistrationApp.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

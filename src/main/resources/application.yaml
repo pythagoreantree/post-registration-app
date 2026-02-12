@@ -17,6 +17,9 @@ spring:
       hibernate:
         format_sql: true
 
+  mongodb:
+    uri: mongodb://localhost:27017/post_registration_app_db
+
   rabbitmq:
     host: localhost
     port: 5672

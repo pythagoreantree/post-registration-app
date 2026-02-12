@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
+import ru.post.PostRegistrationApp.domain.OutboxEvent;
 import ru.post.PostRegistrationApp.domain.RegistrationResult;
-import ru.post.PostRegistrationApp.domain.event.PostCreatedEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ru.post.PostRegistrationApp.dto.event.PostCreatedEvent;
 import ru.post.PostRegistrationApp.dto.request.PostItemRequest;
+import ru.post.PostRegistrationApp.jpa.OutboxMongoRepository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -23,6 +25,9 @@ public class PostItemConsumer {
 
     @Autowired
     private RegistrationService registrationService;
+
+    @Autowired
+    private OutboxMongoRepository outboxRepository;
 
     @RabbitListener(queues = "post_created.queue")
     public void handlePostCreated(
@@ -37,6 +42,13 @@ public class PostItemConsumer {
         try {
 
             //save this event to this database
+            outboxRepository.save(OutboxEvent.builder()
+                    .id(event.getId())
+                    .type(event.getType())
+                    .payload(event.getPayload())
+                    .createdAt(event.getCreatedAt())
+                    .receivedAt(LocalDateTime.now())
+                    .build());
 
             PostItemRequest request = event.getPayload();
 
