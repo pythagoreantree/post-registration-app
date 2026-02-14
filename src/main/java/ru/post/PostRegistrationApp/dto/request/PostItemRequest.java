@@ -3,10 +3,12 @@ package ru.post.PostRegistrationApp.dto.request;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class PostItemRequest {
     private String type;
+    private UUID userId;
     private PostalPartyRequest sender;
     private PostalPartyRequest receiver;
     private String postOfficeCode;

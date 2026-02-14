@@ -40,8 +40,6 @@ public class PostItemConsumer {
         log.info("Payload: {}", event.getPayload());
 
         try {
-
-            //save this event to this database
             outboxRepository.save(OutboxEvent.builder()
                     .id(event.getId())
                     .type(event.getType())
