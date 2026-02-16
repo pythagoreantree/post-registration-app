@@ -32,28 +32,6 @@ public class RegistrationService {
         CompletableFuture<UserStatusResponse> userFuture =
                 userServiceClient.getUserStatus(request.getUserId());
 
-        userFuture.thenApply(userStatus -> {
-
-            log.info("Получен статус пользователя {}: active={}, exists={}",
-                    userStatus.getUserId(),
-                    userStatus.isActive(),
-                    userStatus.isExists());
-
-            if (!userStatus.isExists()) {
-                log.warn("Пользователь {} не найден", request.getUserId());
-                return null;
-            }
-
-            if (!userStatus.isActive()) {
-                log.warn("Пользователь {} не активен", request.getUserId());
-                return null;
-            }
-
-            log.info("Пользователь {} активен, можем создавать отправление",
-                    request.getUserId());
-            return null;
-        });
-
         CompletableFuture<AddressValidationResponse> senderAddressFuture =
                 addressServiceClient.validateAddress(getFullAddress(request.getSender()), false);
 

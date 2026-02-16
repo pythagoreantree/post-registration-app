@@ -15,8 +15,13 @@ public class AppConfig {
         return new RestTemplate();
     }
 
-    @Bean
-    public ExecutorService executorService() {
-        return Executors.newFixedThreadPool(10);
+    @Bean("userServiceExecutor")
+    public ExecutorService userServiceExecutor() {
+        return Executors.newFixedThreadPool(50);
+    }
+
+    @Bean("addressServiceExecutor")
+    public ExecutorService addressServiceExecutor() {
+        return Executors.newFixedThreadPool(200);
     }
 }

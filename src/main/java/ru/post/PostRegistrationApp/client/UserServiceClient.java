@@ -2,6 +2,7 @@ package ru.post.PostRegistrationApp.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +20,7 @@ public class UserServiceClient {
     private RestTemplate restTemplate;
 
     @Autowired
+    @Qualifier("userServiceExecutor")
     private ExecutorService executor;
 
     @Value("${services.user.url}")
@@ -36,7 +38,6 @@ public class UserServiceClient {
                 log.info("Получен ответ от UserService: {}", response);
                 return response;
             } catch (Exception e) {
-                // Другие ошибки (таймаут, 500 и т.д.)
                 log.error("Ошибка при вызове UserService: {}", e.getMessage());
                 return UserStatusResponse.builder()
                         .userId(userId)
