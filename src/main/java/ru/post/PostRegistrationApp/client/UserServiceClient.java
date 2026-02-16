@@ -2,9 +2,10 @@ package ru.post.PostRegistrationApp.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.post.PostRegistrationApp.dto.UserStatusDto;
+import ru.post.PostRegistrationApp.dto.response.UserStatusResponse;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -20,21 +21,24 @@ public class UserServiceClient {
     @Autowired
     private ExecutorService executor;
 
-    public CompletableFuture<UserStatusDto> getUserStatus(UUID userId) {
+    @Value("${services.user.url}")
+    private String userServiceUrl;
+
+    public CompletableFuture<UserStatusResponse> getUserStatus(UUID userId) {
         log.info("Отправляем запрос в UserService для userId: {}", userId);
 
-        String url = "http://localhost:8082/api/v1/users/" + userId + "/status";
+        String url = String.format("%s/api/v1/users/%s/status",
+                userServiceUrl, userId);
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // Синхронный вызов (но он в другом потоке)
-                UserStatusDto response = restTemplate.getForObject(url, UserStatusDto.class);
+                UserStatusResponse response = restTemplate.getForObject(url, UserStatusResponse.class);
                 log.info("Получен ответ от UserService: {}", response);
                 return response;
             } catch (Exception e) {
                 // Другие ошибки (таймаут, 500 и т.д.)
                 log.error("Ошибка при вызове UserService: {}", e.getMessage());
-                return UserStatusDto.builder()
+                return UserStatusResponse.builder()
                         .userId(userId)
                         .exists(false)
                         .active(false)

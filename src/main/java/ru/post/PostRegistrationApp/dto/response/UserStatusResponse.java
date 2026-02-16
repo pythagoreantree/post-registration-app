@@ -1,4 +1,4 @@
-package ru.post.PostRegistrationApp.dto;
+package ru.post.PostRegistrationApp.dto.response;
 
 import lombok.Data;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserStatusDto {
+public class UserStatusResponse {
     private UUID userId;
     private boolean active;
     private boolean exists;
