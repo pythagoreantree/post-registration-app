@@ -28,4 +28,12 @@ public class ProcessingResult {
                 .message(message)
                 .build();
     }
+
+    public static ProcessingResult pending(String id, String message) {
+        return ProcessingResult.builder()
+                .success(true)
+                .id(id)
+                .message(message)
+                .build();
+    }
 }

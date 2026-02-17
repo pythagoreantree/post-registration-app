@@ -103,9 +103,15 @@ public class RegistrationService {
                             .build();
 
                     return CompletableFuture.supplyAsync(() -> {
-                        draftShipmentRepository.save(draft);
-                        outboxPaymentEventRepository.save(event);
-                        return ProcessingResult.success(draft.getId());
+                        try {
+                            draftShipmentRepository.save(draft);
+                            outboxPaymentEventRepository.save(event);
+                            log.info("Черновик {} сохранен, событие {} создано", draft.getId(), event.getId());
+                            return ProcessingResult.pending(draft.getId(), "Ожидает оплаты");
+                        } catch (Exception e) {
+                            log.error("Ошибка сохранения в MongoDB: {}", e.getMessage());
+                            throw new RuntimeException("Failed to save draft", e);
+                        }
                     }, mongoExecutor);
                 });
     }
