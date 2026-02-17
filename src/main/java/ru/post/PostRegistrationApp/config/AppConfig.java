@@ -24,4 +24,9 @@ public class AppConfig {
     public ExecutorService addressServiceExecutor() {
         return Executors.newFixedThreadPool(200);
     }
+
+    @Bean("mongoExecutor")
+    public ExecutorService mongoExecutor() {
+        return Executors.newFixedThreadPool(20);
+    }
 }

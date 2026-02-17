@@ -9,14 +9,15 @@ import org.springframework.stereotype.Service;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
-import ru.post.PostRegistrationApp.domain.OutboxEvent;
-import ru.post.PostRegistrationApp.domain.RegistrationResult;
+import ru.post.PostRegistrationApp.domain.OutboxIncomingEvent;
+import ru.post.PostRegistrationApp.domain.ProcessingResult;
 import ru.post.PostRegistrationApp.dto.event.PostCreatedEvent;
 import ru.post.PostRegistrationApp.dto.request.PostItemRequest;
-import ru.post.PostRegistrationApp.jpa.OutboxMongoRepository;
+import ru.post.PostRegistrationApp.jpa.OutboxIncomingMongoRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -27,7 +28,7 @@ public class PostItemConsumer {
     private RegistrationService registrationService;
 
     @Autowired
-    private OutboxMongoRepository outboxRepository;
+    private OutboxIncomingMongoRepository outboxRepository;
 
     @RabbitListener(queues = "post_created.queue")
     public void handlePostCreated(
@@ -40,7 +41,7 @@ public class PostItemConsumer {
         log.info("Payload: {}", event.getPayload());
 
         try {
-            outboxRepository.save(OutboxEvent.builder()
+            outboxRepository.save(OutboxIncomingEvent.builder()
                     .id(event.getId())
                     .type(event.getType())
                     .payload(event.getPayload())
@@ -50,10 +51,22 @@ public class PostItemConsumer {
 
             PostItemRequest request = event.getPayload();
 
-            RegistrationResult result = registrationService.process(request);
+            CompletableFuture<ProcessingResult> future = registrationService.process(request);
 
-            channel.basicAck(deliveryTag, false);
-            log.info("Событие {} обработано успешно", event.getId());
+            future.whenComplete((result, throwable) -> {
+                try {
+                    if (throwable != null) {
+                        log.error("Ошибка обработки", throwable);
+                        channel.basicNack(deliveryTag, false, false);
+                        // можем ли мы в dead letter запихнуть?
+                    } else {
+                        log.info("Обработка успешна, результат: {}", result);
+                        channel.basicAck(deliveryTag, false);
+                    }
+                } catch (IOException e) {
+                    log.error("Ошибка при ack/nack", e);
+                }
+            });
 
         } catch (Exception e) {
             log.error("Ошибка обработки события {}: {}", event.getId(), e.getMessage());

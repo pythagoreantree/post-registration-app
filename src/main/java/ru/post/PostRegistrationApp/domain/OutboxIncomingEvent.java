@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@Document(collection = "outbox_events")
-public class OutboxEvent implements Serializable {
+@Document(collection = "outbox_incoming_events")
+public class OutboxIncomingEvent implements Serializable {
 
     @Field("event_id")
     String id;
