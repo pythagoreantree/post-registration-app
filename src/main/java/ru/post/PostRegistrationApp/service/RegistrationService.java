@@ -14,6 +14,7 @@ import ru.post.PostRegistrationApp.dto.response.AddressValidationResponse;
 import ru.post.PostRegistrationApp.jpa.DraftShipmentRepository;
 import ru.post.PostRegistrationApp.jpa.OutboxPaymentEventRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -25,12 +26,16 @@ public class RegistrationService {
 
     public static final String PENDING = "PENDING";
     public static final String PAYMENT_REQUEST = "PAYMENT_REQUEST";
+    public static final String RUB = "RUB";
 
     @Autowired
     private DraftShipmentRepository draftShipmentRepository;
 
     @Autowired
     private OutboxPaymentEventRepository outboxPaymentEventRepository;
+
+    @Autowired
+    private PriceCalculationService priceCalculationService;
 
     @Autowired
     private UserServiceClient userServiceClient;
@@ -95,10 +100,18 @@ public class RegistrationService {
                     draft.setStatus(PENDING);
                     draft.setCreatedAt(LocalDateTime.now());
 
+                    BigDecimal summ = priceCalculationService.calculate(request);
+                    String eventId = UUID.randomUUID().toString();
                     OutboxPaymentEvent event = OutboxPaymentEvent.builder()
-                            .id(UUID.randomUUID().toString())
+                            .id(eventId)
                             .correlationId(draft.getId())
                             .type(PAYMENT_REQUEST)
+                            .payload(PaymentEvent.builder()
+                                    .eventId(eventId)
+                                    .correlationId(draft.getId())
+                                    .userId(request.getUserId())
+                                    .amount(summ)
+                                    .build())
                             .createdAt(LocalDateTime.now())
                             .build();
 

@@ -21,6 +21,9 @@ public class OutboxPaymentEvent {
     @Field("event_type")
     String type;
 
+    @Field("payment_event")
+    PaymentEvent payload;
+
     @Field("status")
     @Builder.Default
     String status = "PENDING";
