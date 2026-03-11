@@ -1,11 +1,13 @@
 package ru.post.PostRegistrationApp.dto.request;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
+@Builder
 public class PostItemRequest {
     private String type;
     private UUID userId;
@@ -17,6 +19,7 @@ public class PostItemRequest {
     private LocalDateTime acceptedAt;
 
     @Data
+    @Builder
     public static class PostalPartyRequest {
         private String firstName;
         private String lastName;
